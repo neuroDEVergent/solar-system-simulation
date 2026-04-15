@@ -1,5 +1,22 @@
 # Solar System Simulation
-Starting this project to practice my OpenGL and C/C++ skills. Below is the checklist of things I want to implement:
+Starting this project to practice my OpenGL and C/C++ skills. 
+
+## Build
+Project is written on a GNU/Linux system. You can probably get it running on Windows with relative ease as well, but I'm not willing to be bothered with that. 
+
+You can compile it with this simple command:
+```bash
+g++ -std=c++17 ./src/* -o prog -I ./include/ -I ./thirdparty/glm-master/ -lSDL2 -ldl -lassimp
+```
+
+And then simply run it by using:
+```bash
+./prog
+```
+
+## Cheklist
+
+Below is the checklist of things I want to implement:
 
 ### Basics Graphics
 - [x] Third-party libraries setup
