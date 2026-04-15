@@ -19,11 +19,11 @@ And then simply run it by using:
 Below is the checklist of things I want to implement:
 
 ### Basics Graphics
-- [x] Third-party libraries setup
-- [x] Shader abstraction
-- [x] Transformations
-- [x] Camera movement
-- [x] Model loading
+- [x] ~Third-party libraries setup~
+- [x] ~Shader abstraction~
+- [x] ~Transformations~
+- [x] ~Camera movement~
+- [x] ~Model loading~
 
 ### Intermediate Graphics
 - [ ] Blinn-Phong lighting
