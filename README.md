@@ -2,11 +2,11 @@
 Starting this project to practice my OpenGL and C/C++ skills. Below is the checklist of things I want to implement:
 
 ### Basics Graphics
-- [ ] Third-party libraries setup
-- [ ] Shader abstraction
-- [ ] Transformations
-- [ ] Camera movement
-- [ ] Model loading
+- [x] Third-party libraries setup
+- [x] Shader abstraction
+- [x] Transformations
+- [x] Camera movement
+- [x] Model loading
 
 ### Intermediate Graphics
 - [ ] Blinn-Phong lighting
