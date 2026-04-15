@@ -14,8 +14,13 @@ And then simply run it by using:
 ./prog
 ```
 
-## Cheklist
+## Useful Resources
+- [Solar System Wiki Page](https://en.wikipedia.org/wiki/Solar_System)
+- [Make a Scale Solar System](https://www.jpl.nasa.gov/edu/resources/project/make-a-scale-solar-system/)
+- [learnopengl.com](https://learnopengl.com/)
+- [OpenGL Reference Pages](https://registry.khronos.org/OpenGL-Refpages/gl4/)
 
+## Cheklist
 Below is the checklist of things I want to implement:
 
 ### Basics Graphics
