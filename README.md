@@ -14,11 +14,12 @@ And then simply run it by using:
 ./prog
 ```
 
-## Useful Resources
+## Resources I used
 - [Solar System Wiki Page](https://en.wikipedia.org/wiki/Solar_System)
 - [Make a Scale Solar System](https://www.jpl.nasa.gov/edu/resources/project/make-a-scale-solar-system/)
 - [learnopengl.com](https://learnopengl.com/)
 - [OpenGL Reference Pages](https://registry.khronos.org/OpenGL-Refpages/gl4/)
+- [Solar System Textures](https://www.solarsystemscope.com/textures/)
 
 ## Cheklist
 Below is the checklist of things I want to implement:

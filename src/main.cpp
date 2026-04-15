@@ -67,6 +67,41 @@ void GetOpenGLVersionInfo()
   std::cout << "Shading Language: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
 }
 
+unsigned int loadTexture(char const * path)
+{
+  unsigned int textureID;
+  glGenTextures(1, &textureID);
+
+  int width, height, nrComponents;
+  //stbi_set_flip_vertically_on_load(true);
+  unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
+  if (data)
+  {
+    GLenum format;
+    if (nrComponents == 1) format = GL_RED;
+    else if (nrComponents == 3) format = GL_RGB;
+    else if (nrComponents == 4) format = GL_RGBA;
+
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    stbi_image_free(data);
+  }
+  else
+  {
+    std::cout << "failed to load texture" << std::endl;
+    stbi_image_free(data);
+  }
+
+  return textureID;
+}
+
 void InitializeProgram()
 {
   // Initialize SDL
@@ -176,7 +211,9 @@ int main( int argc, char* args[] )
   Shader defaultShader("./shaders/default-vs.glsl", "./shaders/default-fs.glsl");
 
   // load models
-  Model testModel("./resources/models/sphere.obj");
+  Model sphere("./resources/models/sphere.obj");
+  unsigned int sunTexture = loadTexture("./resources/textures/sun-texture.jpg");
+
 
   
   while (!gQuit)
@@ -210,7 +247,11 @@ int main( int argc, char* args[] )
     glm::mat4 model = glm::mat4(1.0f);
     defaultShader.setMat4("model", model);
 
-    testModel.Draw(defaultShader);
+
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, sunTexture);
+    sphere.Draw(defaultShader);
 
     SDL_GL_SwapWindow(gGraphicsApplicationWindow);
   }
