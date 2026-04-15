@@ -47,5 +47,6 @@ Below is the checklist of things I want to implement:
 
 ### Chef's Kiss
 - [ ] "Photo mode" style UI elements to control post-processing shaders
+- [ ] Audio player
 
 
