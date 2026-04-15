@@ -176,7 +176,7 @@ int main( int argc, char* args[] )
   Shader defaultShader("./shaders/default-vs.glsl", "./shaders/default-fs.glsl");
 
   // load models
-  Model testModel("./resources/sphere.obj");
+  Model testModel("./resources/models/sphere.obj");
 
   
   while (!gQuit)
