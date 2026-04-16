@@ -67,6 +67,37 @@ void GetOpenGLVersionInfo()
   std::cout << "Shading Language: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
 }
 
+unsigned int loadCubemap(std::vector<std::string> faces)
+{
+  unsigned int textureID;
+  glGenTextures(1, &textureID);
+  glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
+  int width, height, nrChannels;
+  for (unsigned int i = 0; i < faces.size(); i++)
+  {
+    unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+    if (data)
+    {
+      glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+      stbi_image_free(data);
+    }
+
+    else
+    {
+      std::cout << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
+      stbi_image_free(data);
+    }
+  }
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+    return textureID;
+}
+
 unsigned int loadTexture(char const * path)
 {
   unsigned int textureID;
@@ -209,13 +240,27 @@ int main( int argc, char* args[] )
 
   // build and compile shaders
   Shader defaultShader("./shaders/default-vs.glsl", "./shaders/default-fs.glsl");
+  Shader cubeMapShader("./shaders/cube-map-vs.glsl", "./shaders/cube-map-fs.glsl");
 
+ 
   // load models
   Model sphere("./resources/models/sphere.obj");
   unsigned int sunTexture = loadTexture("./resources/textures/sun-texture.jpg");
 
+  // Cubemap
+  Model skyboxCube("./resources/models/cube.obj");
+  std::vector<std::string> faces
+  {
+      "./resources/textures/px.png",
+      "resources/textures/nx.png",
+      "resources/textures/py.png",
+      "resources/textures/ny.png",
+      "resources/textures/pz.png",
+      "resources/textures/nz.png"
+  };
 
-  
+  unsigned int spaceCubemap = loadCubemap(faces);
+
   while (!gQuit)
   {
     float time = static_cast<float>(SDL_GetTicks() / 1000.0f);
@@ -233,13 +278,13 @@ int main( int argc, char* args[] )
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
     glEnable(GL_DEPTH_TEST);
-      
-    // Use our shader
-    defaultShader.use();
 
-    // Projection matrix
     glm::mat4 projection = glm::mat4(1.0f);
     projection = glm::perspective(glm::radians(camera.Zoom), (float)gScreenWidth / (float)gScreenHeight, 0.1f, 100.0f);
+
+    
+    // Use our shader
+    defaultShader.use();
     defaultShader.setMat4("projection", projection);
     defaultShader.setMat4("view", camera.GetViewMatrix());
 
@@ -248,10 +293,17 @@ int main( int argc, char* args[] )
     defaultShader.setMat4("model", model);
 
 
-
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, sunTexture);
+
     sphere.Draw(defaultShader);
+
+    glDepthFunc(GL_LEQUAL);
+    cubeMapShader.use();
+    cubeMapShader.setMat4("projection", projection);
+    cubeMapShader.setMat4("view", glm::mat4(glm::mat3(camera.GetViewMatrix())));
+    skyboxCube.Draw(cubeMapShader);
+    glDepthFunc(GL_LESS);
 
     SDL_GL_SwapWindow(gGraphicsApplicationWindow);
   }
