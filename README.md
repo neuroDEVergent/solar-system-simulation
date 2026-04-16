@@ -20,6 +20,7 @@ And then simply run it by using:
 - [learnopengl.com](https://learnopengl.com/)
 - [OpenGL Reference Pages](https://registry.khronos.org/OpenGL-Refpages/gl4/)
 - [Solar System Textures](https://www.solarsystemscope.com/textures/)
+- [HDRI to CubeMap convertor](https://matheowis.github.io/HDRI-to-CubeMap/)
 
 ## Cheklist
 Below is the checklist of things I want to implement:
@@ -33,7 +34,7 @@ Below is the checklist of things I want to implement:
 
 ### Intermediate Graphics
 - [ ] Blinn-Phong lighting
-- [ ] Cubemap
+- [x] ~Cubemap~
 - [ ] Anti-aliasing
 - [ ] Normal and depth maps
 - [ ] Framebuffer for post-processing
@@ -46,8 +47,10 @@ Below is the checklist of things I want to implement:
 - [ ] SSAO
 
 ### Physics
-- [ ] Correct planet scaling (possibly smaller Sun to fit the screen)
-- [ ] Correct distance between bodies
+_throwing these out the window, planets differ in size way too much and are way to far away for the project to actually look good_
+- ~[ ] Correct planet scaling (possibly smaller Sun to fit the screen)~
+- ~[ ] Correct distance between bodies~
+
 - [ ] Planets orbiting around the Sun
 - [ ] Correct time conversion with ability to speed time up
 
