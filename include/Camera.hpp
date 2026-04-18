@@ -12,15 +12,16 @@ enum Camera_Movement
   LEFT,
   RIGHT,
   UP,
-  DOWN
+  DOWN,
 };
 
 // Default camera values
 const float YAW         = -90.0f;
 const float PITCH       = 0.0f;
-const float SPEED       = 1.0f;
+const float SPEED       = 3.0f;
 const float SENSITIVITY = 0.02f;
 const float ZOOM        = 45.0f;
+const bool  SPRINT      = false;
 
 class Camera
 {
@@ -37,6 +38,7 @@ class Camera
     float MovementSpeed;
     float MouseSensitivity;
     float Zoom;
+    bool SPRINT;
 
     // constructor with vectors
     Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
@@ -65,7 +67,10 @@ class Camera
     // Process input received from kayboard input system
     void ProcessKeyboard(Camera_Movement direction, float deltaTime)
     {
-      float velocity = MovementSpeed * deltaTime;
+      float velocity;
+      if (SPRINT) velocity = MovementSpeed * 2.0f * deltaTime;
+      else velocity = MovementSpeed * deltaTime;
+
       if (direction == FORWARD) Position += Front * velocity;
       if (direction == BACKWARD) Position -= Front * velocity;
       if (direction == LEFT) Position -= Right * velocity;
