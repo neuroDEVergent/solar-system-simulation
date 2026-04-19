@@ -36,6 +36,7 @@ Below is the checklist of things I want to implement:
 
 ### Intermediate Graphics
 - [ ] Blinn-Phong lighting
+- [ ] Sun's fragment shader
 - [x] ~Cubemap~
 - [ ] Anti-aliasing
 - [ ] Normal and depth maps
@@ -53,7 +54,7 @@ _throwing these out the window, planets differ in size way too much and are way 
 - ~[ ] Correct planet scaling (possibly smaller Sun to fit the screen)~
 - ~[ ] Correct distance between bodies~
 
-- [ ] Planets orbiting around the Sun
+- [x ] ~Planets orbiting around the Sun~
 - [ ] Correct time conversion with ability to speed time up
 
 ### Chef's Kiss
