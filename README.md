@@ -54,7 +54,7 @@ _throwing these out the window, planets differ in size way too much and are way 
 - ~[ ] Correct planet scaling (possibly smaller Sun to fit the screen)~
 - ~[ ] Correct distance between bodies~
 
-- [x ] ~Planets orbiting around the Sun~
+- [x] ~Planets orbiting around the Sun~
 - [ ] Correct time conversion with ability to speed time up
 
 ### Chef's Kiss
