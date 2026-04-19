@@ -1,6 +1,8 @@
 # Solar System Simulation
 Starting this project to practice my OpenGL and C/C++ skills. 
 
+[SSSS](resources/ssss.png)
+
 ## Build
 Project is written on a GNU/Linux system. You can probably get it running on Windows with relative ease as well, but I'm not willing to be bothered with that. 
 
