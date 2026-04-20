@@ -68,6 +68,8 @@ int main( int argc, char* args[] )
   };
   
   unsigned int spaceCubemap = loadCubemap(faces);
+  
+  float simSpeed = 0.2;
 
   while (!win.quit)
   {
@@ -76,11 +78,12 @@ int main( int argc, char* args[] )
     deltaTime = time - lastFrame;
     lastFrame = time;
 
-    float simSpeed = 0.2f;
-    float simTime = time * simSpeed;
 
     // Handle input 
     Input(&win, &camera, deltaTime);
+    
+    float simTime = time * simSpeed;
+    
 
     // Initialize clear color
     // This is the background of the screen
@@ -92,7 +95,7 @@ int main( int argc, char* args[] )
     glEnable(GL_DEPTH_TEST);
 
     glm::mat4 projection = glm::mat4(1.0f);
-    projection = glm::perspective(glm::radians(camera.Zoom), (float)gScreenWidth / (float)gScreenHeight, 0.1f, 400.0f);
+    projection = glm::perspective(glm::radians(camera.Zoom), (float)win.width / (float)win.height, 0.1f, 400.0f);
 
     
     // Use our shader
