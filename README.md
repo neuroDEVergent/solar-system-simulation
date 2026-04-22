@@ -3,12 +3,28 @@ Starting this project to practice my OpenGL and C/C++ skills.
 
 ![SSSS](./resources/ssss.png)
 
+## Dependencies
+- GLAD
+- SDL2
+- Assimp
+- GLM
+- stb_image
+
 ## Build
 Project is written on a GNU/Linux system. You can probably get it running on Windows with relative ease as well, but I'm not willing to be bothered with that. 
 
 You can compile it with this simple command:
 ```bash
-g++ -std=c++17 ./src/* -o prog -I ./include/ -I ./thirdparty/glm-master/ -lSDL2 -ldl -lassimp
+g++ -std=c++17 ./src/* \
+-o prog\
+-I ./include/ \
+-I ./thirdparty/glad/ \
+-I ./thirdparty/KHR/ \
+-I ./thirdparty/glm-master/ \
+-I ./thirdparty/ \
+-lSDL2 \
+-ldl \
+-lassimp
 ```
 
 And then simply run it by using:
