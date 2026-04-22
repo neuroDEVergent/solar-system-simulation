@@ -1,9 +1,3 @@
-/*
-  Compilation on Linux
-  g++ -std=c++17 ./src/* -o prog -I ./include/ -I ./thirdparty/glm-master/ -lSDL2 -ldl -lassimp
-*/
-
-
 // Third Party Libraries
 #include <SDL2/SDL.h>
 #include <glad/glad.h>
@@ -46,8 +40,9 @@ int main( int argc, char* args[] )
   glEnable(GL_DEPTH_TEST);
 
   // build and compile shaders
-  Shader defaultShader("./shaders/default-vs.glsl", "./shaders/default-fs.glsl");
+  Shader planetShader("./shaders/planet-vs.glsl", "./shaders/planet-fs.glsl");
   Shader cubeMapShader("./shaders/cube-map-vs.glsl", "./shaders/cube-map-fs.glsl");
+  Shader sunShader("./shaders/sun-vs.glsl","./shaders/sun-fs.glsl");
   
   Planet planets[9];
   initializePlanets(planets, 9);
@@ -78,12 +73,10 @@ int main( int argc, char* args[] )
     deltaTime = time - lastFrame;
     lastFrame = time;
 
-
     // Handle input 
     Input(&win, &camera, deltaTime);
     
     float simTime = time * simSpeed;
-    
 
     // Initialize clear color
     // This is the background of the screen
@@ -94,20 +87,30 @@ int main( int argc, char* args[] )
 
     glEnable(GL_DEPTH_TEST);
 
+    // Declare matrices
     glm::mat4 projection = glm::mat4(1.0f);
     projection = glm::perspective(glm::radians(camera.Zoom), (float)win.width / (float)win.height, 0.1f, 400.0f);
-
-    
-    // Use our shader
-    defaultShader.use();
-    defaultShader.setMat4("projection", projection);
-    defaultShader.setMat4("view", camera.GetViewMatrix());
-
+    glm::mat4 view = camera.GetViewMatrix();
+    glm::mat4 model = glm::mat4(1.0f);
     glActiveTexture(GL_TEXTURE0);
 
-    glm::mat4 model;
+    // Draw Sun
+    sunShader.use();
+    sunShader.setMat4("projection", projection);
+    sunShader.setMat4("view", view);
+    model = glm::scale(model, glm::vec3(planets[0].normalizedDiameter));
+    model =  glm::rotate(model, simTime * (planets[0].day / 24.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    sunShader.setMat4("model", model);
+    glBindTexture(GL_TEXTURE_2D, planets[0].texture);
+    sphere.Draw(sunShader);
 
-    for (unsigned int i = 0; i < std::size(planets); i++)
+    // Draw planets
+    planetShader.use();
+    planetShader.setMat4("projection", projection);
+    planetShader.setMat4("view", view);
+    planetShader.setVec3("viewPos", camera.Position.x, camera.Position.y, camera.Position.z);
+
+    for (unsigned int i = 1; i < std::size(planets); i++)
     {
       model = glm::mat4(1.0f);
 
@@ -122,12 +125,11 @@ int main( int argc, char* args[] )
       model = glm::translate(model, glm::vec3(x, 0.0f, z));
 
       model = glm::scale(model, glm::vec3(planets[i].normalizedDiameter));
-      if (i == 0) model =  glm::rotate(model, simTime * (planets[i].day / 24.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-      else model =  glm::rotate(model, simTime * planets[i].normalizedDay, glm::vec3(0.0f, 1.0f, 0.0f));
+      model =  glm::rotate(model, simTime * planets[i].normalizedDay, glm::vec3(0.0f, 1.0f, 0.0f));
 
-      defaultShader.setMat4("model", model);
+      planetShader.setMat4("model", model);
       glBindTexture(GL_TEXTURE_2D, planets[i].texture);
-      sphere.Draw(defaultShader);
+      sphere.Draw(planetShader);
     }
 
     // Draw stars cubemap
