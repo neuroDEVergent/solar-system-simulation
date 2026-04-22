@@ -51,7 +51,7 @@ Below is the checklist of things I want to implement:
 - [x] ~Model loading~
 
 ### Intermediate Graphics
-- [ ] Blinn-Phong lighting
+- [x] ~Blinn-Phong lighting~
 - [ ] Sun's fragment shader
 - [x] ~Cubemap~
 - [ ] Anti-aliasing
@@ -69,6 +69,7 @@ Below is the checklist of things I want to implement:
 _throwing these out the window, planets differ in size way too much and are way to far away for the project to actually look good_
 - ~[ ] Correct planet scaling (possibly smaller Sun to fit the screen)~
 - ~[ ] Correct distance between bodies~
+_I actually implemeted them by using correct sizes, normalizing to Earth data, and mapping to a logarithmic function prevent large values from being too big_
 
 - [x] ~Planets orbiting around the Sun~
 - [ ] Correct time conversion with ability to speed time up
@@ -78,3 +79,4 @@ _throwing these out the window, planets differ in size way too much and are way 
 - [ ] Audio player
 
 
+![GifExample](./resources/eg.gif)
