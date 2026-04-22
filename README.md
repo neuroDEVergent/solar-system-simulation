@@ -32,6 +32,8 @@ And then simply run it by using:
 ./prog
 ```
 
+![GifExample](./resources/eg.gif)
+
 ## Resources I used
 - [Solar System Wiki Page](https://en.wikipedia.org/wiki/Solar_System)
 - [Make a Scale Solar System](https://www.jpl.nasa.gov/edu/resources/project/make-a-scale-solar-system/)
@@ -77,6 +79,3 @@ _I actually implemeted them by using correct sizes, normalizing to Earth data, a
 ### Chef's Kiss
 - [ ] "Photo mode" style UI elements to control post-processing shaders
 - [ ] Audio player
-
-
-![GifExample](./resources/eg.gif)
