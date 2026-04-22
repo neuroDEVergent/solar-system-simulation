@@ -16,7 +16,7 @@ Project is written on a GNU/Linux system. You can probably get it running on Win
 You can compile it with this simple command:
 ```bash
 g++ -std=c++17 ./src/* \
--o prog\
+-o prog \
 -I ./include/ \
 -I ./thirdparty/glad/ \
 -I ./thirdparty/KHR/ \
