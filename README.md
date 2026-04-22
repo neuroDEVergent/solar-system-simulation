@@ -1,7 +1,7 @@
 # Solar System Simulation
 Starting this project to practice my OpenGL and C/C++ skills. 
 
-![SSSS](./resources/ssss.png)
+![GifExample](./resources/eg.gif)
 
 ## Dependencies
 - GLAD
@@ -32,7 +32,6 @@ And then simply run it by using:
 ./prog
 ```
 
-![GifExample](./resources/eg.gif)
 
 ## Resources I used
 - [Solar System Wiki Page](https://en.wikipedia.org/wiki/Solar_System)
@@ -79,3 +78,5 @@ _I actually implemeted them by using correct sizes, normalizing to Earth data, a
 ### Chef's Kiss
 - [ ] "Photo mode" style UI elements to control post-processing shaders
 - [ ] Audio player
+
+![SSSS](./resources/ssss.png)
