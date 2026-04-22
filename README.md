@@ -55,9 +55,9 @@ Below is the checklist of things I want to implement:
 - [x] ~Blinn-Phong lighting~
 - [ ] Sun's fragment shader
 - [x] ~Cubemap~
-- [ ] Anti-aliasing
+- [x] ~Anti-aliasing~
 - [ ] Normal and depth maps
-- [ ] Framebuffer for post-processing
+- [x] ~Framebuffer for post-processing~
 
 ### Advanced Graphics
 - [ ] Bloom
