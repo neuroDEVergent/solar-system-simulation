@@ -127,7 +127,7 @@ int main( int argc, char* args[] )
   
   unsigned int spaceCubemap = loadCubemap(faces);
 
-  float simSpeed = 0.2;
+  float simSpeed = 0.0;
 
   while (!win.quit)
   {
@@ -160,6 +160,8 @@ int main( int argc, char* args[] )
 
     // Draw Sun
     sunShader.use();
+    sunShader.setVec2("u_resolution", win.width, win.height);
+    sunShader.setFloat("u_time", time);
     sunShader.setMat4("projection", projection);
     sunShader.setMat4("view", view);
     model = glm::scale(model, glm::vec3(planets[0].normalizedDiameter));
