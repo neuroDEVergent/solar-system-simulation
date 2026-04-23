@@ -6,15 +6,19 @@
 
 typedef struct Planet
 {
-  float realDiameter;
-  float realDistance;
-  float normalizedDiameter;
-  float normalizedDistance;
-  float day;
-  float normalizedDay;
-  float year;
-  float normalizedYear;
+  double realDiameter;
+  double realDistance;
+  double normalizedDiameter;
+  double normalizedDistance;
+  double day;
+  double normalizedDay;
+  double year;
+  double normalizedYear;
   unsigned int texture;
+  unsigned int normalMap;
+  unsigned int specularMap;
+  unsigned int nightMap;
+  unsigned int clouds;
 } Planet;
 
 void initializePlanets(Planet*, unsigned int);

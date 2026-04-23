@@ -9,6 +9,10 @@ vec3 lightPos;
 vec3 lightColor;
 uniform vec3 viewPos;
 uniform sampler2D defaultTexture;
+uniform sampler2D normalMap;
+uniform sampler2D specularMap;
+uniform sampler2D nightMap;
+uniform sampler2D clouds;
 
 void main()
 {
@@ -31,7 +35,7 @@ void main()
 
   // Specular
   float specular_intensity = pow(max(dot(N, H), 0.0f), 4.0);
-  vec3 specular = specular_intensity * (lightColor * 0.1f);
+  vec3 specular = specular_intensity * (lightColor * 0.5) * texture(specularMap, TexCoords).rgb;
 
 
   vec3 result = (ambient + diffuse + specular) * color;
