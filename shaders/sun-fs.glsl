@@ -157,12 +157,13 @@ float pnoise(vec3 P, vec3 rep)
   return 2.2 * n_xyz;
 }
 
-float color(vec2 xy) { return cnoise(vec3(1.5*xy, 0.2*u_time)); }
+float color(vec2 xy) { return cnoise(vec3(4.*xy, 0.2*u_time)); }
 
 void main() {
-    vec2 p = FragPos.xy * 15. - 1.0;
+    vec2 p = TexCoords.xy * 3. - 1.0;
+    p.y -= sin(u_time * 0.01) + 0.5;
 
-    vec2 step = vec2(1.3, 1.6);
+    vec2 step = vec2(1.3, 1.8);
     float n = color(p);
     n += 0.5 * color(p * 2.0 - step);
     n += 0.25 * color(p * 4.0 - 2.0 * step);
@@ -171,6 +172,7 @@ void main() {
     n += 0.03125 * color(p * 32.0 - 5.0 * step);
 
     vec2 distortedUV = TexCoords + (n * 0.5 + 0.5);
+    distortedUV = fract(distortedUV);
     vec3 texColor = texture(texture_diffuse1, distortedUV).rgb;
 
     float lightingMod = mix(0.9, 1.2, 0.2 + 0.1 * n);

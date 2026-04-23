@@ -102,10 +102,18 @@ int main( int argc, char* args[] )
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
   // build and compile shaders
+  Shader sunShader("./shaders/sun-vs.glsl","./shaders/sun-fs.glsl");
   Shader planetShader("./shaders/planet-vs.glsl", "./shaders/planet-fs.glsl");
   Shader cubeMapShader("./shaders/cube-map-vs.glsl", "./shaders/cube-map-fs.glsl");
-  Shader sunShader("./shaders/sun-vs.glsl","./shaders/sun-fs.glsl");
   Shader postProcessShader("./shaders/post-process-vs.glsl", "./shaders/post-process-fs.glsl");
+
+  Shader earthShader("./shaders/planet-vs.glsl", "./shaders/earth-fs.glsl");
+  earthShader.use();
+  earthShader.setInt("defaultTexture", 0);
+  earthShader.setInt("normalMap", 1);
+  earthShader.setInt("specularMap", 2);
+  earthShader.setInt("nightMap", 3);
+  earthShader.setInt("clouds", 4);
 
   Planet planets[9];
   initializePlanets(planets, 9);
@@ -165,10 +173,36 @@ int main( int argc, char* args[] )
     sunShader.setMat4("projection", projection);
     sunShader.setMat4("view", view);
     model = glm::scale(model, glm::vec3(planets[0].normalizedDiameter));
-    model =  glm::rotate(model, simTime * (planets[0].day / 24.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    model =  glm::rotate(model, simTime * static_cast<float>((planets[0].day / 24.0f)), glm::vec3(0.0f, 1.0f, 0.0f));
     sunShader.setMat4("model", model);
     glBindTexture(GL_TEXTURE_2D, planets[0].texture);
     sphere.Draw(sunShader);
+
+    // Draw Earth
+    earthShader.use();
+    earthShader.setMat4("projection", projection);
+    earthShader.setMat4("view", view);
+    earthShader.setVec3("viewPos", camera.Position.x, camera.Position.y, camera.Position.z);
+    model = glm::mat4(1.0f);
+
+    float angle = simTime / planets[1].normalizedYear;
+    float x = glm::cos(-angle) * planets[1].normalizedDistance;
+    float z = glm::sin(-angle) * planets[1].normalizedDistance;
+    model = glm::translate(model, glm::vec3(x, 0.0f, z));
+    model = glm::scale(model, glm::vec3(planets[1].normalizedDiameter));
+    model = glm::rotate(model, static_cast<float>(time * 0.01 * planets[1].normalizedDay), glm::vec3(0.0f, 1.0f, 0.0f));
+    earthShader.setMat4("model", model);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, planets[1].texture);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, planets[1].normalMap);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, planets[1].specularMap);
+    glActiveTexture(GL_TEXTURE3);
+    glBindTexture(GL_TEXTURE_2D, planets[1].nightMap);
+    glActiveTexture(GL_TEXTURE4);
+    glBindTexture(GL_TEXTURE_2D, planets[1].clouds);
+    sphere.Draw(earthShader);
 
     // Draw planets
     planetShader.use();
@@ -176,7 +210,7 @@ int main( int argc, char* args[] )
     planetShader.setMat4("view", view);
     planetShader.setVec3("viewPos", camera.Position.x, camera.Position.y, camera.Position.z);
 
-    for (unsigned int i = 1; i < std::size(planets); i++)
+    for (unsigned int i = 2; i < std::size(planets); i++)
     {
       model = glm::mat4(1.0f);
 
@@ -191,10 +225,11 @@ int main( int argc, char* args[] )
       model = glm::translate(model, glm::vec3(x, 0.0f, z));
 
       model = glm::scale(model, glm::vec3(planets[i].normalizedDiameter));
-      model =  glm::rotate(model, simTime * planets[i].normalizedDay, glm::vec3(0.0f, 1.0f, 0.0f));
+      model = glm::rotate(model, static_cast<float>(simTime * planets[i].normalizedDay), glm::vec3(0.0f, 1.0f, 0.0f));
 
       planetShader.setMat4("model", model);
       glBindTexture(GL_TEXTURE_2D, planets[i].texture);
+      
       sphere.Draw(planetShader);
     }
 
