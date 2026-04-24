@@ -18,4 +18,3 @@ void main()
     FragPos = (model * vec4(aPos, 1.0f)).rgb;
     gl_Position = projection * view * model * vec4(aPos, 1.0f);
 }
-
