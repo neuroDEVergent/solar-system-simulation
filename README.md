@@ -1,7 +1,8 @@
 # Solar System Simulation
 Starting this project to practice my OpenGL and C/C++ skills. 
 
-![GifExample](./resources/eg.gif)
+![GifExample](./resources/examples/eg.gif)
+![DayNigh](./resources/examples/day-night.gif)
 
 ## Dependencies
 - GLAD
@@ -39,24 +40,27 @@ And then simply run it by using:
 - [learnopengl.com](https://learnopengl.com/)
 - [OpenGL Reference Pages](https://registry.khronos.org/OpenGL-Refpages/gl4/)
 - [Solar System Textures](https://www.solarsystemscope.com/textures/)
+- [Normal Map Generator](https://smart-page.net/smartnormal/)
 - [HDRI to CubeMap convertor](https://matheowis.github.io/HDRI-to-CubeMap/)
+- [Perlin Noise](https://en.wikipedia.org/wiki/Perlin_noise)
+- [Perlin Noise Shader Code](https://stegu.github.io/webgl-noise/webdemo/)
 
 ## Cheklist
 Below is the checklist of things I want to implement:
 
-### Basics Graphics
+### ~Basics Graphics~
 - [x] ~Third-party libraries setup~
 - [x] ~Shader abstraction~
 - [x] ~Transformations~
 - [x] ~Camera movement~
 - [x] ~Model loading~
 
-### Intermediate Graphics
+### ~Intermediate Graphics~
 - [x] ~Blinn-Phong lighting~
-- [ ] Sun's fragment shader
+- [x] ~Sun's fragment shader~
 - [x] ~Cubemap~
 - [x] ~Anti-aliasing~
-- [ ] Normal and depth maps
+- [x] ~Normal and depth maps~
 - [x] ~Framebuffer for post-processing~
 
 ### Advanced Graphics
@@ -70,6 +74,7 @@ Below is the checklist of things I want to implement:
 _throwing these out the window, planets differ in size way too much and are way to far away for the project to actually look good_
 - ~[ ] Correct planet scaling (possibly smaller Sun to fit the screen)~
 - ~[ ] Correct distance between bodies~
+
 _I actually implemeted them by using correct sizes, normalizing to Earth data, and mapping to a logarithmic function prevent large values from being too big_
 
 - [x] ~Planets orbiting around the Sun~
@@ -79,4 +84,4 @@ _I actually implemeted them by using correct sizes, normalizing to Earth data, a
 - [ ] "Photo mode" style UI elements to control post-processing shaders
 - [ ] Audio player
 
-![SSSS](./resources/ssss.png)
+![SSSS](./resources/examples/ssss.png)
