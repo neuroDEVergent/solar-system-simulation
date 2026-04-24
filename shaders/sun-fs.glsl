@@ -157,7 +157,7 @@ float pnoise(vec3 P, vec3 rep)
   return 2.2 * n_xyz;
 }
 
-float color(vec2 xy) { return cnoise(vec3(4.*xy, 0.2*u_time)); }
+float color(vec2 xy) { return cnoise(vec3(30.*xy, 0.2*u_time)); }
 
 void main() {
     vec2 p = TexCoords.xy * 3. - 1.0;
