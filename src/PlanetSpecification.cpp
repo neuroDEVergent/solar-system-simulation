@@ -46,67 +46,67 @@ void initializePlanets(Planet* planets, unsigned int size)
   sun.realDistance = 0.0;
   sun.day = 840.0;
   sun.year = 0.0f;
-  sun.texture = loadTexture("./resources/textures/planets/sun-test.jpg");
+  sun.diffuseTexture = loadTexture("./resources/textures/planets/sun-test.jpg");
 
   Planet mercury = {0};
   mercury.realDiameter = 4879.;
   mercury.realDistance = 57900000.0;
   mercury.day = 1408.0;
   mercury.year = 88.0;
-  mercury.texture = loadTexture("./resources/textures/planets/mercury-texture.jpg");
+  mercury.diffuseTexture = loadTexture("./resources/textures/planets/mercury-texture.jpg");
 
   Planet venus = {0};
   venus.realDiameter = 12104.0;
   venus.realDistance = 108200000.0;
   venus.day = 5832.0;
   venus.year = 225.0;
-  venus.texture = loadTexture("./resources/textures/planets/venus-texture.jpg");
+  venus.diffuseTexture = loadTexture("./resources/textures/planets/venus-texture.jpg");
 
   Planet earth = {0};
   earth.realDiameter = 12756.0;
   earth.realDistance = 149600000.0;
   earth.day = 24.0;
   earth.year = 365.0;
-  earth.texture = loadTexture("./resources/textures/planets/earth-texture.jpg");
-  earth.normalMap = loadTexture("./resources/textures/planets/earth-normal-map.jpg");
+  earth.diffuseTexture = loadTexture("./resources/textures/planets/earth-texture.jpg");
+  earth.normalMap = loadTexture("./resources/textures/planets/earth-normal-map-test.jpg");
   earth.specularMap = loadTexture("./resources/textures/planets/earth-specular-map.jpg");
   earth.nightMap = loadTexture("./resources/textures/planets/earth-nightmap.jpg");
-  earth.clouds = loadTexture("./resources/textures/planets/earth-clouds.jpg");
+  earth.clouds = loadTexture("./resources/textures/planets/earth-clouds.png");
 
   Planet mars = {0};
   mars.realDiameter = 6792.0;
   mars.realDistance = 227900000.0;
   mars.day = 25.0;
   mars.year = 687.0;
-  mars.texture = loadTexture("./resources/textures/planets/mars-texture.jpg");
+  mars.diffuseTexture = loadTexture("./resources/textures/planets/mars-texture.jpg");
 
   Planet jupiter = {0};
   jupiter.realDiameter = 142984.0;
   jupiter.realDistance = 778600000.0;
   jupiter.day = 10.0;
   jupiter.year = 4333.0;
-  jupiter.texture = loadTexture("./resources/textures/planets/jupiter-texture.jpg");
+  jupiter.diffuseTexture = loadTexture("./resources/textures/planets/jupiter-texture.jpg");
 
   Planet saturn = {0};
   saturn.realDiameter = 120636.0;
   saturn.realDistance = 1433500000.0;
   saturn.day = 11.0;
   saturn.year = 10759.0;
-  saturn.texture = loadTexture("./resources/textures/planets/saturn-texture.jpg");
+  saturn.diffuseTexture = loadTexture("./resources/textures/planets/saturn-texture.jpg");
 
   Planet uranus = {0};
   uranus.realDiameter = 51118.0;
   uranus.realDistance = 2872500000.0;
   uranus.day = 17.0;
   uranus.year = 30687.0;
-  uranus.texture = loadTexture("./resources/textures/planets/uranus-texture.jpg");
+  uranus.diffuseTexture = loadTexture("./resources/textures/planets/uranus-texture.jpg");
 
   Planet neptune = {0};
   neptune.realDiameter = 49528.0;
   neptune.realDistance = 4495100000.0;
   neptune.day = 16.0;
   neptune.year = 60190.0;
-  neptune.texture = loadTexture("./resources/textures/planets/neptune-texture.jpg");
+  neptune.diffuseTexture = loadTexture("./resources/textures/planets/neptune-texture.jpg");
   
   Planet planetsTemp[] = {sun, earth, mercury, venus, mars, jupiter, saturn, uranus, neptune};
   

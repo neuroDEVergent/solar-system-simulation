@@ -14,7 +14,8 @@ void main()
 {
   lightPos = vec3(0.0f);
   lightColor = vec3(1.0f);
-  vec3 color = texture(diffuseTexture, TexCoords).rgb;
+  vec3 color = vec3(1.0);
+  float alpha = texture(diffuseTexture, TexCoords).r;
 
   vec3 L = normalize(lightPos - FragPos);
   vec3 N = normalize(Normal);
@@ -35,5 +36,5 @@ void main()
 
 
   vec3 result = (ambient + diffuse + specular) * color;
-  FragColor = vec4(result, 1.0f);
+  FragColor = vec4(result, alpha);
 }

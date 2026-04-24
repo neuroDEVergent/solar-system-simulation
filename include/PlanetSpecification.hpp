@@ -14,7 +14,7 @@ typedef struct Planet
   double normalizedDay;
   double year;
   double normalizedYear;
-  unsigned int texture;
+  unsigned int diffuseTexture;
   unsigned int normalMap;
   unsigned int specularMap;
   unsigned int nightMap;
