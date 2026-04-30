@@ -22,9 +22,10 @@
 #include "SDL.hpp"
 #include "MSAAFramebuffer.h"
 #include "postProcessFramebuffer.h"
+#include "shadowMapFramebuffer.h"
 
 // Camera
-Camera camera(glm::vec3(0.0f, 0.0f, 20.0f));
+Camera camera(glm::vec3(0.0f, 0.0f, 0.0f));
 
 // Timing
 float deltaTime = 0.0f;
@@ -47,18 +48,16 @@ int main( int argc, char* args[] )
   postProcessFBO postProcessFramebuffer = {0};
   postProcessFBOInit(&postProcessFramebuffer, win.width, win.height);
 
+  shadowFBO shadowMapFramebuffer = {0};
+  shadowFBOInit(&shadowMapFramebuffer, 4096, 4096);
+
   // build and compile shaders
-  Shader sunShader("./shaders/sun-vs.glsl","./shaders/sun-fs.glsl");
   Shader planetShader("./shaders/planet-vs.glsl", "./shaders/planet-fs.glsl");
-  Shader cubeMapShader("./shaders/cube-map-vs.glsl", "./shaders/cube-map-fs.glsl");
+  planetShader.use();
+  planetShader.setInt("diffuseMap", 0);
+  planetShader.setInt("shadowMap", 1);
   Shader postProcessShader("./shaders/post-process-vs.glsl", "./shaders/post-process-fs.glsl");
-  Shader earthShader("./shaders/earth-vs.glsl", "./shaders/earth-fs.glsl");
-  Shader cloudShader("./shaders/planet-vs.glsl", "./shaders/clouds-fs.glsl");
-  earthShader.use();
-  earthShader.setInt("diffuseMap", 0);
-  earthShader.setInt("normalMap", 1);
-  earthShader.setInt("specularMap", 2);
-  earthShader.setInt("nightMap", 3);
+  Shader depthShader("./shaders/depth-vs.glsl","./shaders/depth-fs.glsl");
 
   Planet planets[9];
   initializePlanets(planets, 9);
@@ -80,7 +79,7 @@ int main( int argc, char* args[] )
   
   unsigned int spaceCubemap = loadCubemap(faces);
 
-  float simSpeed = 0.0001;
+  float simSpeed = 0.0000;
 
   while (!win.quit)
   {
@@ -94,110 +93,72 @@ int main( int argc, char* args[] )
     
     float simTime = time * simSpeed;
 
+    // Light pass
+    glEnable(GL_DEPTH_TEST);
+    glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFramebuffer.framebuffer);
+    glViewport(0, 0, shadowMapFramebuffer.width, shadowMapFramebuffer.height);
+    glClear(GL_DEPTH_BUFFER_BIT);
+    depthShader.use();
+
+    glm::mat4 model;
+    glm::mat4 lightProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 400.0f);
+    glm::mat4 lightView = glm::lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 lightSpace = lightProjection * lightView;
+    depthShader.setMat4("lightSpace", lightSpace);
+
+    // First planet
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(glm::sin(time), 0.0, -6.0f));
+    depthShader.setMat4("model", model);
+    glBindTexture(GL_TEXTURE_2D, planets[2].diffuseTexture);
+    sphere.Draw(depthShader);
+    // Second planet
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(0.0, 0.0, -12.0f));
+    depthShader.setMat4("model", model);
+    glBindTexture(GL_TEXTURE_2D, planets[3].diffuseTexture);
+    sphere.Draw(depthShader);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    // Render pass
+
+    // Draw the scene in multisampled buffers
+    glBindFramebuffer(GL_FRAMEBUFFER, msaaFramebuffer.framebuffer);
     glViewport(0, 0, win.width, win.height);
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     
-    // Draw the scene in multisampled buffers
-    glBindFramebuffer(GL_FRAMEBUFFER, msaaFramebuffer.framebuffer);
-    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glEnable(GL_DEPTH_TEST);
-
     // Declare matrices
     glm::mat4 projection = glm::mat4(1.0f);
     projection = glm::perspective(glm::radians(camera.Zoom), (float)win.width / (float)win.height, 0.1f, 400.0f);
     glm::mat4 view = camera.GetViewMatrix();
-    glm::mat4 model = glm::mat4(1.0f);
-    glActiveTexture(GL_TEXTURE0);
-
-    // Draw Sun
-    sunShader.use();
-    sunShader.setVec2("u_resolution", win.width, win.height);
-    sunShader.setFloat("u_time", time);
-    sunShader.setMat4("projection", projection);
-    sunShader.setMat4("view", view);
-    model = glm::scale(model, glm::vec3(planets[0].normalizedDiameter));
-    model =  glm::rotate(model, simTime * static_cast<float>((planets[0].day / 24.0f)), glm::vec3(0.0f, 1.0f, 0.0f));
-    sunShader.setMat4("model", model);
-    glBindTexture(GL_TEXTURE_2D, planets[0].diffuseTexture);
-    sphere.Draw(sunShader);
-
-    // Draw Earth
-    earthShader.use();
-    earthShader.setMat4("projection", projection);
-    earthShader.setMat4("view", view);
-    earthShader.setVec3("viewPos", camera.Position.x, camera.Position.y, camera.Position.z);
-    earthShader.setVec3("lightPos", 0.0f, 0.0f, 0.0f);
     model = glm::mat4(1.0f);
+    glActiveTexture(GL_TEXTURE0);
 
-    float angle = simTime / planets[1].normalizedYear * 0.0;
-    float x = glm::cos(-angle) * planets[1].normalizedDistance;
-    float z = glm::sin(-angle) * planets[1].normalizedDistance;
-    model = glm::translate(model, glm::vec3(x, 0.0f, z));
-    model = glm::scale(model, glm::vec3(planets[1].normalizedDiameter));
-    model = glm::rotate(model, static_cast<float>(simTime * planets[1].normalizedDay), glm::vec3(0.0f, 1.0f, 0.0f));
-    earthShader.setMat4("model", model);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, planets[1].diffuseTexture);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, planets[1].normalMap);
-    glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, planets[1].specularMap);
-    glActiveTexture(GL_TEXTURE3);
-    glBindTexture(GL_TEXTURE_2D, planets[1].nightMap);
-    sphere.Draw(earthShader);
-    // Draw clouds
-    cloudShader.use();
-    cloudShader.setFloat("u_time", time);
-    cloudShader.setMat4("projection", projection);
-    cloudShader.setMat4("view", view);
-    cloudShader.setVec3("viewPos", camera.Position.x, camera.Position.y, camera.Position.z);
-    model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(x, 0.0f, z));
-    model = glm::scale(model, glm::vec3(planets[1].normalizedDiameter) * 1.005f);
-    model = glm::rotate(model, static_cast<float>(simTime * planets[1].normalizedDay * 0.9), glm::vec3(0.0f, 1.0f, 0.0f));
-    cloudShader.setMat4("model", model);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, planets[1].clouds);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    sphere.Draw(cloudShader);
-    // Draw planets
+   // Draw planets
     planetShader.use();
     planetShader.setMat4("projection", projection);
     planetShader.setMat4("view", view);
+    planetShader.setMat4("lightSpace", lightSpace);
     planetShader.setVec3("viewPos", camera.Position.x, camera.Position.y, camera.Position.z);
-    for (unsigned int i = 2; i < std::size(planets); i++)
-    {
-      model = glm::mat4(1.0f);
-
-      float angle;
-
-      if (i == 0) angle = 0;
-      else angle = simTime / planets[i].normalizedYear;
-
-      float x = glm::cos(-angle) * planets[i].normalizedDistance;
-      float z = glm::sin(-angle) * planets[i].normalizedDistance;
-
-      model = glm::translate(model, glm::vec3(x, 0.0f, z));
-
-      model = glm::scale(model, glm::vec3(planets[i].normalizedDiameter));
-      model = glm::rotate(model, static_cast<float>(simTime * planets[i].normalizedDay), glm::vec3(0.0f, 1.0f, 0.0f));
-
-      planetShader.setMat4("model", model);
-      glBindTexture(GL_TEXTURE_2D, planets[i].diffuseTexture);
-      
-      sphere.Draw(planetShader);
-    }
-
-    // Draw stars cubemap
-    glDepthFunc(GL_LEQUAL);
-    cubeMapShader.use();
-    cubeMapShader.setMat4("projection", projection);
-    cubeMapShader.setMat4("view", glm::mat4(glm::mat3(camera.GetViewMatrix())));
-    skyboxCube.Draw(cubeMapShader);
-    glDepthFunc(GL_LESS);
+    // First planet
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(glm::sin(time), 0.0, -6.0f));
+    planetShader.setMat4("model", model);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, planets[2].diffuseTexture);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, shadowMapFramebuffer.shadowMap);
+    sphere.Draw(planetShader);
+    // Second planet
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(0.0, 0.0, -12.0f));
+    planetShader.setMat4("model", model);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, planets[3].diffuseTexture);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, shadowMapFramebuffer.shadowMap);
+    sphere.Draw(planetShader);
 
     // Now blit multisampled buffer to normal colorbuffer of intermediate FBO
     glBindFramebuffer(GL_READ_FRAMEBUFFER, msaaFramebuffer.framebuffer);
