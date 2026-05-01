@@ -22,6 +22,7 @@
 #include "SDL.hpp"
 #include "MSAAFramebuffer.h"
 #include "postProcessFramebuffer.h"
+#include "shadowMapFramebuffer.h"
 
 // Camera
 Camera camera(glm::vec3(0.0f, 0.0f, 20.0f));
@@ -47,10 +48,17 @@ int main( int argc, char* args[] )
   postProcessFBO postProcessFramebuffer = {0};
   postProcessFBOInit(&postProcessFramebuffer, win.width, win.height);
 
+  shadowMapFBO shadowMapFramebuffer = {0};
+  shadowMapFBOInit(&shadowMapFramebuffer, 4096, 4096);
+
   // build and compile shaders
   Shader sunShader("./shaders/sun-vs.glsl","./shaders/sun-fs.glsl");
   Shader planetShader("./shaders/planet-vs.glsl", "./shaders/planet-fs.glsl");
+  planetShader.use();
+  planetShader.setInt("diffuseMap", 0);
+  planetShader.setInt("shadowMap", 1);
   Shader cubeMapShader("./shaders/cube-map-vs.glsl", "./shaders/cube-map-fs.glsl");
+  Shader depthShader("./shaders/depth-vs.glsl", "./shaders/depth-fs.glsl", "./shaders/depth-gs.glsl");
   Shader postProcessShader("./shaders/post-process-vs.glsl", "./shaders/post-process-fs.glsl");
   Shader earthShader("./shaders/earth-vs.glsl", "./shaders/earth-fs.glsl");
   Shader cloudShader("./shaders/planet-vs.glsl", "./shaders/clouds-fs.glsl");
@@ -80,7 +88,9 @@ int main( int argc, char* args[] )
   
   unsigned int spaceCubemap = loadCubemap(faces);
 
-  float simSpeed = 0.0001;
+  float simSpeed = 0.1;
+
+  glm::vec3 lightPos = glm::vec3(0.0, 0.0, 0.0);
 
   while (!win.quit)
   {
@@ -94,21 +104,68 @@ int main( int argc, char* args[] )
     
     float simTime = time * simSpeed;
 
+
+    // Light pass
+    glEnable(GL_DEPTH_TEST);
+    glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFramebuffer.framebuffer);
+    glViewport(0, 0, shadowMapFramebuffer.width, shadowMapFramebuffer.height);
+    glClear(GL_DEPTH_BUFFER_BIT);
+
+    // Create matrices
+    float near_plane = 0.1f;
+    float far_plane = 400.0f;
+    glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), (float)shadowMapFramebuffer.width / (float)shadowMapFramebuffer.height, near_plane, far_plane);
+    std::vector<glm::mat4> shadowTransforms;
+    shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3( 1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
+    shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
+    shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3( 0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)));
+    shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3( 0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)));
+    shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3( 0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
+    shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3( 0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
+
+    // Render to cubemap
+    depthShader.use();
+    for (unsigned int i = 0; i < 6; i++)
+    {
+      depthShader.setMat4("shadowMatrices[" + std::to_string(i) + "]", shadowTransforms[i]);
+    }
+    depthShader.setFloat("far_plane", far_plane);
+    depthShader.setVec3("lightPos", lightPos);
+    glm::mat4 model;
+
+    for (unsigned int i = 2; i < std::size(planets); i++)
+    {
+      model = glm::mat4(1.0f);
+
+      float angle = simTime / planets[i].normalizedYear;
+
+      float x = glm::cos(-angle) * planets[i].normalizedDistance;
+      float z = glm::sin(-angle) * planets[i].normalizedDistance;
+
+      model = glm::translate(model, glm::vec3(x, 0.0f, z));
+
+      model = glm::scale(model, glm::vec3(planets[i].normalizedDiameter));
+      model = glm::rotate(model, static_cast<float>(simTime * planets[i].normalizedDay), glm::vec3(0.0f, 1.0f, 0.0f));
+
+      depthShader.setMat4("model", model);
+      glBindTexture(GL_TEXTURE_2D, planets[i].diffuseTexture);
+      
+      sphere.Draw(depthShader);
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    // Render pass
+    // Draw the scene in multisampled buffers
+    glBindFramebuffer(GL_FRAMEBUFFER, msaaFramebuffer.framebuffer);
     glViewport(0, 0, win.width, win.height);
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-    
-    // Draw the scene in multisampled buffers
-    glBindFramebuffer(GL_FRAMEBUFFER, msaaFramebuffer.framebuffer);
-    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glEnable(GL_DEPTH_TEST);
 
     // Declare matrices
     glm::mat4 projection = glm::mat4(1.0f);
     projection = glm::perspective(glm::radians(camera.Zoom), (float)win.width / (float)win.height, 0.1f, 400.0f);
     glm::mat4 view = camera.GetViewMatrix();
-    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::mat4(1.0f);
     glActiveTexture(GL_TEXTURE0);
 
     // Draw Sun
@@ -168,6 +225,8 @@ int main( int argc, char* args[] )
     planetShader.setMat4("projection", projection);
     planetShader.setMat4("view", view);
     planetShader.setVec3("viewPos", camera.Position.x, camera.Position.y, camera.Position.z);
+    planetShader.setVec3("lightPos", lightPos);
+    planetShader.setFloat("far_plane", far_plane);
     for (unsigned int i = 2; i < std::size(planets); i++)
     {
       model = glm::mat4(1.0f);
@@ -186,7 +245,10 @@ int main( int argc, char* args[] )
       model = glm::rotate(model, static_cast<float>(simTime * planets[i].normalizedDay), glm::vec3(0.0f, 1.0f, 0.0f));
 
       planetShader.setMat4("model", model);
+      glActiveTexture(GL_TEXTURE0);
       glBindTexture(GL_TEXTURE_2D, planets[i].diffuseTexture);
+      glActiveTexture(GL_TEXTURE1);
+      glBindTexture(GL_TEXTURE_CUBE_MAP, shadowMapFramebuffer.shadowMap);
       
       sphere.Draw(planetShader);
     }

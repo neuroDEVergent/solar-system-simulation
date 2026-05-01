@@ -5,14 +5,27 @@ in vec2 TexCoords;
 in vec3 Normal;
 in vec3 FragPos;
 
-vec3 lightPos;
+uniform float far_plane;
+uniform vec3 lightPos;
 vec3 lightColor;
 uniform vec3 viewPos;
 uniform sampler2D diffuseTexture;
+uniform samplerCube shadowMap;
+
+float shadowCalculation(vec3 fragPos)
+{
+  vec3 fragToLight = fragPos - lightPos;
+  float closestDepth = texture(shadowMap, fragToLight).r;
+  closestDepth *= far_plane;
+  float currentDepth = length(fragToLight);
+  float bias = 0.1;
+  float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+
+  return shadow;
+}
 
 void main()
 {
-  lightPos = vec3(0.0f);
   lightColor = vec3(1.0f);
   vec3 color = texture(diffuseTexture, TexCoords).rgb;
 
@@ -33,7 +46,8 @@ void main()
   float specular_intensity = pow(max(dot(N, H), 0.0f), 4.0);
   vec3 specular = specular_intensity * (lightColor * 0.1f);
 
+  float shadow = shadowCalculation(FragPos);
 
-  vec3 result = (ambient + diffuse + specular) * color;
+  vec3 result = (ambient + (1.0 - shadow) * (diffuse + specular)) * color;
   FragColor = vec4(result, 1.0f);
 }
