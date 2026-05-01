@@ -5,14 +5,45 @@ in vec2 TexCoords;
 in vec3 Normal;
 in vec3 FragPos;
 
-vec3 lightPos;
 vec3 lightColor;
+uniform float far_plane;
+uniform vec3 lightPos;
 uniform vec3 viewPos;
 uniform sampler2D diffuseTexture;
+uniform samplerCube shadowMap;
+
+vec3 gridSamplingDisk[20] = vec3[]
+(
+  vec3(1, 1,  1), vec3( 1, -1,  1), vec3(-1, -1,  1), vec3(-1, 1,  1),
+  vec3(1, 1, -1), vec3( 1, -1, -1), vec3(-1, -1, -1), vec3(-1, 1, -1),
+  vec3(1, 1,  0), vec3( 1, -1,  0), vec3(-1, -1,  0), vec3(-1, 1,  0),
+  vec3(1, 0,  1), vec3(-1,  0,  1), vec3( 1,  0, -1), vec3(-1, 0, -1),
+  vec3(0, 1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0, 1, -1)
+);
+
+float shadowCalculation(vec3 fragPos)
+{
+    vec3 fragToLight = fragPos - lightPos;
+    float currentDepth = length(fragToLight);
+    float shadow = 0.0;
+    float bias = 0.3;
+    int samples = 20;
+    float viewDistance = length(viewPos - fragPos);
+    float diskRadius = (1.0 + (viewDistance / far_plane)) / 25.0;
+    for(int i = 0; i < samples; ++i)
+    {
+        float closestDepth = texture(shadowMap, fragToLight + gridSamplingDisk[i] * diskRadius).r;
+        closestDepth *= far_plane;   // undo mapping [0;1]
+        if(currentDepth - bias > closestDepth)
+            shadow += 1.0;
+    }
+    shadow /= float(samples);
+
+    return shadow;
+}
 
 void main()
 {
-  lightPos = vec3(0.0f);
   lightColor = vec3(1.0f);
   vec3 color = vec3(1.0);
   float alpha = texture(diffuseTexture, TexCoords).r;
@@ -34,7 +65,8 @@ void main()
   float specular_intensity = pow(max(dot(N, H), 0.0f), 4.0);
   vec3 specular = specular_intensity * (lightColor * 0.1f);
 
+  float shadow = shadowCalculation(FragPos);
 
-  vec3 result = (ambient + diffuse + specular) * color;
+  vec3 result = (ambient + (1.0 - shadow) * (diffuse + specular)) * color;
   FragColor = vec4(result, alpha);
 }
