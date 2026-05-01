@@ -1,7 +1,7 @@
 # Solar System Simulation
 Starting this project to practice my OpenGL and C/C++ skills. 
 
-![GifExample](./resources/examples/eg.gif)
+![GifExample](./resources/examples/shadows.gif)
 ![Sun](./resources/examples/sun-eg.gif);
 ![DayNigh](./resources/examples/day-night.gif)
 
@@ -66,7 +66,7 @@ Below is the checklist of things I want to implement:
 
 ### Advanced Graphics
 - [ ] Bloom
-- [ ] Shadows
+- [x] ~Shadows~
 - [ ] HDR
 - [ ] Gamma handling
 - [ ] SSAO
