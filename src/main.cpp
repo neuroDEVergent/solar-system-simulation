@@ -91,7 +91,7 @@ int main( int argc, char* args[] )
   
   unsigned int spaceCubemap = loadCubemap(faces);
 
-  float simSpeed = 0.2;
+  float simSpeed = 0.1;
 
   glm::vec3 lightPos = glm::vec3(0.0, 0.0, 0.0);
 

@@ -177,5 +177,10 @@ void main() {
 
     float lightingMod = mix(0.9, 1.2, 0.2 + 0.1 * n);
 
-    FragColor = vec4(texColor * lightingMod, 1.0f);
+    vec3 result = texColor * lightingMod;
+
+    float gamma = 2.2;
+    result = pow(result, vec3(1.0/gamma));
+
+    FragColor = vec4(result, 1.0f);
 }
