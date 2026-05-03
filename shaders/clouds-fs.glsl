@@ -5,7 +5,7 @@ in vec2 TexCoords;
 in vec3 Normal;
 in vec3 FragPos;
 
-vec3 lightColor;
+uniform vec3 lightColor;
 uniform float far_plane;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
@@ -44,7 +44,6 @@ float shadowCalculation(vec3 fragPos)
 
 void main()
 {
-  lightColor = vec3(1.0f);
   vec3 color = vec3(1.0);
   float alpha = texture(diffuseTexture, TexCoords).r;
 

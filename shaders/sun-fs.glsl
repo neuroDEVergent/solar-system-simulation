@@ -7,6 +7,7 @@ in vec3 FragPos;
 
 uniform sampler2D texture_diffuse1;
 uniform vec2 u_resolution;
+uniform vec3 lightColor;
 uniform float u_time;
 
 vec3 mod289(vec3 x)
@@ -177,10 +178,7 @@ void main() {
 
     float lightingMod = mix(0.9, 1.2, 0.2 + 0.1 * n);
 
-    vec3 result = texColor * lightingMod;
-
-    float gamma = 2.2;
-    result = pow(result, vec3(1.0/gamma));
+    vec3 result = texColor * lightingMod * lightColor;
 
     FragColor = vec4(result, 1.0f);
 }

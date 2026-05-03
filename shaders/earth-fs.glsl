@@ -7,8 +7,8 @@ in vec3 TangentLightPos;
 in vec3 TangentViewPos;
 in vec3 TangentFragPos;
 
-vec3 lightColor;
 uniform float far_plane;
+uniform vec3 lightColor;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
 uniform sampler2D diffuseMap;
@@ -49,10 +49,9 @@ float shadowCalculation(vec3 fragPos)
 
 void main()
 {
-  lightColor = vec3(1.0f);
   vec3 color = texture(diffuseMap, TexCoords).rgb;
   vec3 normal = texture(normalMap, TexCoords).rgb;
-  vec3 night = texture(nightMap, TexCoords).rgb;
+  vec3 nightLight = texture(nightMap, TexCoords).rgb;
 
   vec3 L = normalize(TangentLightPos - TangentFragPos);
   vec3 N = normalize(normal * 2.0 - 1.0);
@@ -60,7 +59,7 @@ void main()
   vec3 H = normalize(L + V);
 
   // Ambient
-  float ambient_intensity = 0.0;
+  float ambient_intensity = 0.2;
   vec3 ambient = ambient_intensity * lightColor;
 
   // Diffuse
@@ -76,11 +75,10 @@ void main()
   float shadow = shadowCalculation(FragPos);
 
   vec3 day = (ambient + (1.0 - shadow) * (diffuse + specular)) * color;
+  vec3 night = nightLight * (1.0 - diffuse_intensity + shadow);
 
-  vec3 result = mix(night, day, dayFactor);
-
-  float gamma = 2.2;
-  result = pow(result, vec3(1.0/gamma));
+//  vec3 result = mix(night, day, dayFactor);
+  vec3 result = day + night;
 
   FragColor = vec4(result, 1.0f);
 }

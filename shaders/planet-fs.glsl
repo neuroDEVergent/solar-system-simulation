@@ -7,7 +7,7 @@ in vec3 FragPos;
 
 uniform float far_plane;
 uniform vec3 lightPos;
-vec3 lightColor;
+uniform vec3 lightColor;
 uniform vec3 viewPos;
 uniform sampler2D diffuseTexture;
 uniform samplerCube shadowMap;
@@ -44,7 +44,6 @@ float shadowCalculation(vec3 fragPos)
 
 void main()
 {
-  lightColor = vec3(1.0f);
   vec3 color = texture(diffuseTexture, TexCoords).rgb;
 
   vec3 L = normalize(lightPos - FragPos);
@@ -67,9 +66,6 @@ void main()
   float shadow = shadowCalculation(FragPos);
 
   vec3 result = (ambient + (1.0 - shadow) * (diffuse + specular)) * color;
-
-  float gamma = 2.2;
-  result = pow(result, vec3(1.0/gamma));
 
   FragColor = vec4(result, 1.0f);
 }

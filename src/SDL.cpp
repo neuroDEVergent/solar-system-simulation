@@ -127,6 +127,8 @@ void Input(Window* window, Camera* camera, float deltaTime)
   if (state[SDL_SCANCODE_A]) camera->ProcessKeyboard(LEFT, deltaTime);
   if (state[SDL_SCANCODE_E]) camera->ProcessKeyboard(UP, deltaTime);
   if (state[SDL_SCANCODE_Q]) camera->ProcessKeyboard(DOWN, deltaTime);
+  if (state[SDL_SCANCODE_K]) camera->exposure += 0.001f;
+  if (state[SDL_SCANCODE_J]) camera->exposure -= 0.001;
   if (state[SDL_SCANCODE_LSHIFT]) camera->SPRINT = true;
   else camera->SPRINT = false;
 

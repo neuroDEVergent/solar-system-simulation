@@ -38,6 +38,7 @@ class Camera
     float MovementSpeed;
     float MouseSensitivity;
     float Zoom;
+    float exposure;
     bool SPRINT;
 
     // constructor with vectors
