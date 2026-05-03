@@ -91,9 +91,11 @@ int main( int argc, char* args[] )
   
   unsigned int spaceCubemap = loadCubemap(faces);
 
-  float simSpeed = 0.1;
+  float simSpeed = 0.001;
 
   glm::vec3 lightPos = glm::vec3(0.0, 0.0, 0.0);
+  glm::vec3 lightColor = glm::vec3(10.0f, 10.0f, 10.0f);
+  camera.exposure = 1.0f;
 
   while (!win.quit)
   {
@@ -106,7 +108,6 @@ int main( int argc, char* args[] )
     Input(&win, &camera, deltaTime);
     
     float simTime = time * simSpeed;
-
 
     // Light pass
     glEnable(GL_DEPTH_TEST);
@@ -180,6 +181,7 @@ int main( int argc, char* args[] )
     sunShader.setFloat("u_time", time);
     sunShader.setMat4("projection", projection);
     sunShader.setMat4("view", view);
+    sunShader.setVec3("lightColor", lightColor);
     model = glm::scale(model, glm::vec3(planets[0].normalizedDiameter));
     model =  glm::rotate(model, simTime * static_cast<float>((planets[0].day / 24.0f)), glm::vec3(0.0f, 1.0f, 0.0f));
     sunShader.setMat4("model", model);
@@ -190,6 +192,7 @@ int main( int argc, char* args[] )
     earthShader.use();
     earthShader.setFloat("far_plane", far_plane);
     earthShader.setMat4("projection", projection);
+    earthShader.setVec3("lightColor", lightColor);
     earthShader.setMat4("view", view);
     earthShader.setVec3("viewPos", camera.Position.x, camera.Position.y, camera.Position.z);
     earthShader.setVec3("lightPos", 0.0f, 0.0f, 0.0f);
@@ -216,6 +219,7 @@ int main( int argc, char* args[] )
     // Draw clouds
     cloudShader.use();
     cloudShader.setFloat("u_time", time);
+    cloudShader.setVec3("lightColor", lightColor);
     cloudShader.setMat4("projection", projection);
     cloudShader.setMat4("view", view);
     cloudShader.setVec3("viewPos", camera.Position.x, camera.Position.y, camera.Position.z);
@@ -239,6 +243,7 @@ int main( int argc, char* args[] )
     planetShader.setMat4("view", view);
     planetShader.setVec3("viewPos", camera.Position.x, camera.Position.y, camera.Position.z);
     planetShader.setVec3("lightPos", lightPos);
+    planetShader.setVec3("lightColor", lightColor);
     planetShader.setFloat("far_plane", far_plane);
     for (unsigned int i = 2; i < std::size(planets); i++)
     {
@@ -287,6 +292,7 @@ int main( int argc, char* args[] )
 
     // Draw screen quad
     postProcessShader.use();
+    postProcessShader.setFloat("exposure", camera.exposure);
     glBindVertexArray(postProcessFramebuffer.VAO);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, postProcessFramebuffer.texture);
