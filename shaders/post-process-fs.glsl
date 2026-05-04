@@ -11,9 +11,11 @@ void main()
   float gamma = 1.7;
   vec3 color = texture(screenTexture, TexCoords).rgb;
 
-  vec3 result = vec3(1.0) - exp(-color * exposure);
-  result = pow(result, vec3(1.0/gamma));
+//  vec3 mapped = color / (color + vec3(1.0f));
+  vec3 mapped = vec3(1.0) - exp(-color * exposure);
+
+  mapped = pow(mapped, vec3(1.0/gamma));
 
 
-  FragColor = vec4(result, 1.0f);
+  FragColor = vec4(mapped, 1.0f);
 }

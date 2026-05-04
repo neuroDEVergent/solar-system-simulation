@@ -7,7 +7,7 @@ void msaaFBOInit(msaaFBO* fbo, unsigned int width, unsigned int height)
 
   glGenTextures(1, &fbo->texture);
   glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, fbo->texture);
-  glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGB, width, height, GL_TRUE);
+  glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGBA16F, width, height, GL_TRUE);
   glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, fbo->texture, 0);
 
