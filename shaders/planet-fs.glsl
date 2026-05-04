@@ -52,7 +52,7 @@ void main()
   vec3 H = normalize(L + V);
 
   // Ambient
-  float ambient_intensity = 0.2;
+  float ambient_intensity = 0.3;
   vec3 ambient = ambient_intensity * lightColor;
 
   // Diffuse

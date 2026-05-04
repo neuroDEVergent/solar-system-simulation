@@ -27,7 +27,7 @@ float shadowCalculation(vec3 fragPos)
     float currentDepth = length(fragToLight);
     float shadow = 0.0;
     float bias = 0.3;
-    int samples = 20;
+    int samples = 2;
     float viewDistance = length(viewPos - fragPos);
     float diskRadius = (1.0 + (viewDistance / far_plane)) / 25.0;
     for(int i = 0; i < samples; ++i)
