@@ -16,6 +16,7 @@ uniform sampler2D normalMap;
 uniform sampler2D specularMap;
 uniform sampler2D nightMap;
 uniform samplerCube shadowMap;
+uniform sampler2D cloudMap;
 
 vec3 gridSamplingDisk[20] = vec3[]
 (
@@ -52,6 +53,11 @@ void main()
   vec3 color = texture(diffuseMap, TexCoords).rgb;
   vec3 normal = texture(normalMap, TexCoords).rgb;
   vec3 nightLight = texture(nightMap, TexCoords).rgb;
+  float cloudsA = texture(cloudMap, TexCoords).r;
+  vec4 clouds = vec4(1.0, 1.0, 1.0, cloudsA);
+
+  color = mix(vec4(color, 1.0f), clouds, cloudsA*0.5).rgb;
+  nightLight = mix(vec4(nightLight, 1.0f), clouds, cloudsA*0.1).rgb;
 
   vec3 L = normalize(TangentLightPos - TangentFragPos);
   vec3 N = normalize(normal * 2.0 - 1.0);
@@ -77,7 +83,6 @@ void main()
   vec3 day = (ambient + (1.0 - shadow) * (diffuse + specular)) * color;
   vec3 night = nightLight * (1.0 - diffuse_intensity + shadow);
 
-//  vec3 result = mix(night, day, dayFactor);
   vec3 result = day + night;
 
   FragColor = vec4(result, 1.0f);

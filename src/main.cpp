@@ -67,10 +67,8 @@ int main( int argc, char* args[] )
   earthShader.setInt("normalMap", 2);
   earthShader.setInt("specularMap", 3);
   earthShader.setInt("nightMap", 4);
-  Shader cloudShader("./shaders/planet-vs.glsl", "./shaders/clouds-fs.glsl");
-  cloudShader.use();
-  cloudShader.setInt("diffuseMap", 0);
-  cloudShader.setInt("shadowMap", 1);
+  earthShader.setInt("cloudMap", 5);
+
   Planet planets[9];
   initializePlanets(planets, 9);
  
@@ -94,7 +92,7 @@ int main( int argc, char* args[] )
   float simSpeed = 0.001;
 
   glm::vec3 lightPos = glm::vec3(0.0, 0.0, 0.0);
-  glm::vec3 lightColor = glm::vec3(10.0f, 10.0f, 10.0f);
+  glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
   camera.exposure = 1.0f;
 
   while (!win.quit)
@@ -215,29 +213,10 @@ int main( int argc, char* args[] )
     glBindTexture(GL_TEXTURE_2D, planets[1].specularMap);
     glActiveTexture(GL_TEXTURE4);
     glBindTexture(GL_TEXTURE_2D, planets[1].nightMap);
-    sphere.Draw(earthShader);
-    // Draw clouds
-    cloudShader.use();
-    cloudShader.setFloat("u_time", time);
-    cloudShader.setVec3("lightColor", lightColor);
-    cloudShader.setMat4("projection", projection);
-    cloudShader.setMat4("view", view);
-    cloudShader.setVec3("viewPos", camera.Position.x, camera.Position.y, camera.Position.z);
-    cloudShader.setFloat("far_plane", far_plane);
-    cloudShader.setVec3("lightPos", 0.0f, 0.0f, 0.0f);
-    model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(x, 0.0f, z));
-    model = glm::scale(model, glm::vec3(planets[1].normalizedDiameter) * 1.005f);
-    model = glm::rotate(model, static_cast<float>(simTime * planets[1].normalizedDay * 0.9), glm::vec3(0.0f, 1.0f, 0.0f));
-    cloudShader.setMat4("model", model);
-    glActiveTexture(GL_TEXTURE0);
+    glActiveTexture(GL_TEXTURE5);
     glBindTexture(GL_TEXTURE_2D, planets[1].clouds);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, shadowMapFramebuffer.shadowMap);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    sphere.Draw(cloudShader);
-    // Draw planets
+    sphere.Draw(earthShader);
+   // Draw planets
     planetShader.use();
     planetShader.setMat4("projection", projection);
     planetShader.setMat4("view", view);
