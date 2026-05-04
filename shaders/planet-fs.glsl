@@ -52,7 +52,7 @@ void main()
   vec3 H = normalize(L + V);
 
   // Ambient
-  float ambient_intensity = 0.3;
+  float ambient_intensity = 0.02;
   vec3 ambient = ambient_intensity * lightColor;
 
   // Diffuse
@@ -64,8 +64,13 @@ void main()
   vec3 specular = specular_intensity * (lightColor * 0.1f);
 
   float shadow = shadowCalculation(FragPos);
+  float dist = length(FragPos - lightPos) * 0.04;
 
-  vec3 result = (ambient + (1.0 - shadow) * (diffuse + specular)) * color;
+  vec3 ambientLight = ambient * color;
+  vec3 lighting = ((1.0 - shadow) * (diffuse + specular)) * color;
 
-  FragColor = vec4(result, 1.0f);
+//  vec3 result = (ambient + (1.0 - shadow) * (diffuse + specular)) * color;
+  lighting *= 1.0 / (dist * dist);
+
+  FragColor = vec4(ambientLight + lighting, 1.0f);
 }

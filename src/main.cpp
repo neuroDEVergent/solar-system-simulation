@@ -92,7 +92,7 @@ int main( int argc, char* args[] )
   float simSpeed = 0.001;
 
   glm::vec3 lightPos = glm::vec3(0.0, 0.0, 0.0);
-  glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
+  glm::vec3 lightColor = glm::vec3(5.0f, 5.0f, 5.0f);
   camera.exposure = 1.0f;
 
   while (!win.quit)

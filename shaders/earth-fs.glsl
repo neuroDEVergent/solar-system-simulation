@@ -52,12 +52,12 @@ void main()
 {
   vec3 color = texture(diffuseMap, TexCoords).rgb;
   vec3 normal = texture(normalMap, TexCoords).rgb;
-  vec3 nightLight = texture(nightMap, TexCoords).rgb;
+  vec3 night = texture(nightMap, TexCoords).rgb;
   float cloudsA = texture(cloudMap, TexCoords).r;
   vec4 clouds = vec4(1.0, 1.0, 1.0, cloudsA);
 
   color = mix(vec4(color, 1.0f), clouds, cloudsA*0.5).rgb;
-  nightLight = mix(vec4(nightLight, 1.0f), clouds, cloudsA*0.1).rgb;
+  night = mix(vec4(night, 1.0f), clouds, cloudsA*0.1).rgb;
 
   vec3 L = normalize(TangentLightPos - TangentFragPos);
   vec3 N = normalize(normal * 2.0 - 1.0);
@@ -65,7 +65,7 @@ void main()
   vec3 H = normalize(L + V);
 
   // Ambient
-  float ambient_intensity = 0.2;
+  float ambient_intensity = 0.02;
   vec3 ambient = ambient_intensity * lightColor;
 
   // Diffuse
@@ -79,11 +79,13 @@ void main()
   float dayFactor = smoothstep(0.0, 0.1, diffuse_intensity);
 
   float shadow = shadowCalculation(FragPos);
+  float dist = length(FragPos - lightPos) * 0.04;
 
-  vec3 day = (ambient + (1.0 - shadow) * (diffuse + specular)) * color;
-  vec3 night = nightLight * (1.0 - diffuse_intensity + shadow);
+  vec3 ambientLight = ambient * color;
+  vec3 dayLight = ((1.0 - shadow) * (diffuse + specular)) * color;
+  vec3 nightLight = night * (1.0 - diffuse_intensity + shadow);
 
-  vec3 result = day + night;
+  vec3 result = ambientLight + ((dayLight + nightLight) * (1.0 / (dist * dist)));
 
   FragColor = vec4(result, 1.0f);
 }
