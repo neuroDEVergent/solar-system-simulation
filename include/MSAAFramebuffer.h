@@ -1,5 +1,5 @@
-#ifndef MSAAFRAMEBUFFER
-#define MSAAFRAMEBUFFER
+#ifndef MSAAFRAMEBUFFER_H
+#define MSAAFRAMEBUFFER_H
 
 #include <glad/glad.h>
 #include <iostream>
@@ -11,8 +11,6 @@ typedef struct msaaFBO
   unsigned int rbo;
 } msaaFBO;
 
-  
 void msaaFBOInit(msaaFBO* fbo, unsigned int width, unsigned int height);
-//void msaaFBOBindRead(GLenum TextureUnit);
 
 #endif

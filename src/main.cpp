@@ -15,6 +15,7 @@
 
 // Personal libraries
 #include "Shader.hpp"
+#include "ComputeShader.hpp"
 #include "Camera.hpp"
 #include "model.h"
 #include "PlanetSpecification.hpp"
@@ -23,6 +24,7 @@
 #include "MSAAFramebuffer.h"
 #include "postProcessFramebuffer.h"
 #include "shadowMapFramebuffer.h"
+#include "hdrFramebuffer.h"
 
 // Camera
 Camera camera(glm::vec3(0.0f, 0.0f, 20.0f));
@@ -51,7 +53,13 @@ int main( int argc, char* args[] )
   shadowMapFBO shadowMapFramebuffer = {0};
   shadowMapFBOInit(&shadowMapFramebuffer, 4096, 4096);
 
+  unsigned int luminanceSSBO = 0;
+
+//  hdrFBO hdrFramebuffer = {0};
+//  hdrFBOInit(&hdrFramebuffer, win.width, win.height);
+
   // build and compile shaders
+  ComputeShader hdrShader("./shaders/hdr-cs.glsl");
   Shader sunShader("./shaders/sun-vs.glsl","./shaders/sun-fs.glsl");
   Shader planetShader("./shaders/planet-vs.glsl", "./shaders/planet-fs.glsl");
   planetShader.use();
@@ -89,11 +97,26 @@ int main( int argc, char* args[] )
   
   unsigned int spaceCubemap = loadCubemap(faces);
 
-  float simSpeed = 0.001;
+  float simSpeed = 0.000;
 
   glm::vec3 lightPos = glm::vec3(0.0, 0.0, 0.0);
-  glm::vec3 lightColor = glm::vec3(5.0f, 5.0f, 5.0f);
+  glm::vec3 lightColor = glm::vec3(20.0f, 20.0f, 20.0f);
   camera.exposure = 1.0f;
+
+  unsigned int localSizeX = 10;
+  unsigned int localSizeY = 10;
+
+  unsigned int numGroupsX = (win.width + localSizeX - 1) / localSizeX;
+  unsigned int numGroupsY = (win.height + localSizeY - 1) / localSizeY;
+  
+  unsigned int numTiles = numGroupsX * numGroupsY;
+
+  // Create SSBO
+  glGenBuffers(1, &luminanceSSBO);
+  glBindBuffer(GL_SHADER_STORAGE_BUFFER, luminanceSSBO);
+  glBufferData(GL_SHADER_STORAGE_BUFFER, numTiles * sizeof(float), NULL, GL_DYNAMIC_COPY);
+  glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, luminanceSSBO);
+
 
   while (!win.quit)
   {
@@ -263,6 +286,40 @@ int main( int argc, char* args[] )
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, postProcessFramebuffer.framebuffer);
     glBlitFramebuffer(0, 0, win.width, win.height, 0, 0, win.width, win.height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
+    // Calculate average luminance
+    hdrShader.use();
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, postProcessFramebuffer.texture);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, luminanceSSBO);
+
+    glDispatchCompute(numGroupsX, numGroupsY, 1);
+    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, luminanceSSBO);
+    float* data = (float*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
+    if (!data) return 1.0f;
+
+    float sum = 0.0f;
+    for (int i = 0; i < numTiles; ++i)
+      sum += data[i];
+
+    glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+
+    unsigned int totalPixels = numTiles * 100;
+
+    float avgLogLum = sum / (float)totalPixels;
+    float avgLum = expf(avgLogLum);
+
+    avgLum = std::max(avgLum, 0.0001f);
+
+    float exposure = 0.18f / avgLum;
+
+    std::cout << "AVG LUM: " << avgLum << std::endl;
+    std::cout << "CAMERA EXP: " << camera.exposure << std::endl;
+
+//    camera.exposure = exposure;
+
     // Now render quad with scene's visuals as it's texture image
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -272,6 +329,7 @@ int main( int argc, char* args[] )
     // Draw screen quad
     postProcessShader.use();
     postProcessShader.setFloat("exposure", camera.exposure);
+    postProcessShader.setFloat("avgLum", avgLum);
     glBindVertexArray(postProcessFramebuffer.VAO);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, postProcessFramebuffer.texture);
