@@ -19,9 +19,9 @@ You can compile it with this simple command:
 ```bash
 g++ -std=c++17 ./src/* \
 -o prog \
--I ./include/ \
--I ./thirdparty/ \
--I ./thirdparty/glm-master/ \
+-I./include/ \
+-I./thirdparty/ \
+-I./thirdparty/glm-master/ \
 -lSDL2 \
 -ldl \
 -lassimp
