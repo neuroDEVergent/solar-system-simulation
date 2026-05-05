@@ -20,10 +20,8 @@ You can compile it with this simple command:
 g++ -std=c++17 ./src/* \
 -o prog \
 -I ./include/ \
--I ./thirdparty/glad/ \
--I ./thirdparty/KHR/ \
--I ./thirdparty/glm-master/ \
 -I ./thirdparty/ \
+-I ./thirdparty/glm-master/ \
 -lSDL2 \
 -ldl \
 -lassimp
