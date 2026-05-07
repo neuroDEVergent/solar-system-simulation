@@ -64,7 +64,7 @@ void main()
   vec3 specular = specular_intensity * (lightColor * 0.1f);
 
   float shadow = shadowCalculation(FragPos);
-  float dist = length(FragPos - lightPos) * 0.04;
+  float dist = length(FragPos - lightPos) * 0.03;
 
   vec3 ambientLight = ambient * color;
   vec3 lighting = ((1.0 - shadow) * (diffuse + specular)) * color;
