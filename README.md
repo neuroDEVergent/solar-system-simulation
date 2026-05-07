@@ -4,6 +4,7 @@ Starting this project to practice my OpenGL and C/C++ skills.
 ![GifExample](./resources/examples/shadows.gif)
 ![Sun](./resources/examples/sun-eg.gif);
 ![DayNigh](./resources/examples/day-night.gif)
+![Exposure](./relative/examples/exposure.gif)
 
 ## Dependencies
 - GLAD
