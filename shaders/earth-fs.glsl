@@ -79,13 +79,14 @@ void main()
   float dayFactor = smoothstep(0.0, 0.1, diffuse_intensity);
 
   float shadow = shadowCalculation(FragPos);
-  float dist = length(FragPos - lightPos) * 0.04;
+  float dist = length(TangentFragPos - TangentLightPos) * 0.03;
 
   vec3 ambientLight = ambient * color;
   vec3 dayLight = ((1.0 - shadow) * (diffuse + specular)) * color;
   vec3 nightLight = night * (1.0 - diffuse_intensity + shadow);
 
-  vec3 result = ambientLight + ((dayLight + nightLight) * (1.0 / (dist * dist)));
+  vec3 result = ambientLight + ((dayLight + nightLight)* (1.0 / (dist * dist)));
+//  vec3 result = ambientLight + (dayLight + nightLight);
 
   FragColor = vec4(result, 1.0f);
 }

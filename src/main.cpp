@@ -97,10 +97,10 @@ int main( int argc, char* args[] )
   
   unsigned int spaceCubemap = loadCubemap(faces);
 
-  float simSpeed = 0.000;
+  float simSpeed = 0.02;
 
   glm::vec3 lightPos = glm::vec3(0.0, 0.0, 0.0);
-  glm::vec3 lightColor = glm::vec3(20.0f, 20.0f, 20.0f);
+  glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
   camera.exposure = 1.0f;
 
   unsigned int localSizeX = 10;
@@ -300,25 +300,21 @@ int main( int argc, char* args[] )
     float* data = (float*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
     if (!data) return 1.0f;
 
-    float sum = 0.0f;
+    float targetExposure;
+    float biggest = 0.0f;
     for (int i = 0; i < numTiles; ++i)
-      sum += data[i];
+    {
+      if (data[i] >= biggest) biggest = data[i];
+    }
+
+    if (biggest >= 100.0) targetExposure = 0.1f;
+    else targetExposure = 2.2;
 
     glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
-    unsigned int totalPixels = numTiles * 100;
 
-    float avgLogLum = sum / (float)totalPixels;
-    float avgLum = expf(avgLogLum);
-
-    avgLum = std::max(avgLum, 0.0001f);
-
-    float exposure = 0.18f / avgLum;
-
-    std::cout << "AVG LUM: " << avgLum << std::endl;
-    std::cout << "CAMERA EXP: " << camera.exposure << std::endl;
-
-//    camera.exposure = exposure;
+    float speed = 1.3f;
+    camera.exposure += (targetExposure - camera.exposure) * speed * deltaTime;
 
     // Now render quad with scene's visuals as it's texture image
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -329,7 +325,6 @@ int main( int argc, char* args[] )
     // Draw screen quad
     postProcessShader.use();
     postProcessShader.setFloat("exposure", camera.exposure);
-    postProcessShader.setFloat("avgLum", avgLum);
     glBindVertexArray(postProcessFramebuffer.VAO);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, postProcessFramebuffer.texture);
