@@ -65,8 +65,8 @@ Below is the checklist of things I want to implement:
 ### Advanced Graphics
 - [ ] Bloom
 - [x] ~Shadows~
-- [ ] HDR
-- [ ] Gamma handling
+- [x] ~HDR~
+- [x] ~Gamma handling~
 - [ ] SSAO
 
 ### Physics
