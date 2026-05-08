@@ -64,7 +64,7 @@ Below is the checklist of things I want to implement:
 - [x] ~Framebuffer for post-processing~
 
 ### Advanced Graphics
-- [ ] Bloom
+- [x] ~Bloom~
 - [x] ~Shadows~
 - [x] ~HDR~
 - [x] ~Gamma handling~
