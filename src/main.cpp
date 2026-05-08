@@ -50,10 +50,32 @@ int main( int argc, char* args[] )
   postProcessFBO postProcessFramebuffer = {0};
   postProcessFBOInit(&postProcessFramebuffer, win.width, win.height);
 
+  postProcessFBO extractFramebuffer = {0};
+  postProcessFBOInit(&extractFramebuffer, win.width, win.height);
+
   shadowMapFBO shadowMapFramebuffer = {0};
   shadowMapFBOInit(&shadowMapFramebuffer, 4096, 4096);
 
   unsigned int luminanceSSBO = 0;
+
+  unsigned int pingPongFBO[2];
+  unsigned int pingPongColorBuffers[2];
+  glGenFramebuffers(2, pingPongFBO);
+  glGenTextures(2, pingPongColorBuffers);
+  for (unsigned int i = 0; i < 2; i++)
+  {
+    glBindFramebuffer(GL_FRAMEBUFFER, pingPongFBO[i]);
+    glBindTexture(GL_TEXTURE_2D, pingPongColorBuffers[i]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, win.width, win.height, 0, GL_RGBA, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, pingPongColorBuffers[i], 0);
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+      std::cout << "Framebuffer not complete" << std::endl;
+  }
 
 //  hdrFBO hdrFramebuffer = {0};
 //  hdrFBOInit(&hdrFramebuffer, win.width, win.height);
@@ -68,6 +90,10 @@ int main( int argc, char* args[] )
   Shader cubeMapShader("./shaders/cube-map-vs.glsl", "./shaders/cube-map-fs.glsl");
   Shader depthShader("./shaders/depth-vs.glsl", "./shaders/depth-fs.glsl", "./shaders/depth-gs.glsl");
   Shader postProcessShader("./shaders/post-process-vs.glsl", "./shaders/post-process-fs.glsl");
+  postProcessShader.use();
+  postProcessShader.setInt("screenTexture", 0);
+  postProcessShader.setInt("bloomBlur", 1);
+  Shader extractShader("./shaders/post-process-vs.glsl","./shaders/extract-fs.glsl");
   Shader earthShader("./shaders/earth-vs.glsl", "./shaders/earth-fs.glsl");
   earthShader.use();
   earthShader.setInt("diffuseMap", 0);
@@ -76,6 +102,7 @@ int main( int argc, char* args[] )
   earthShader.setInt("specularMap", 3);
   earthShader.setInt("nightMap", 4);
   earthShader.setInt("cloudMap", 5);
+  Shader blurShader("./shaders/blur-vs.glsl","./shaders/blur-fs.glsl");
 
   Planet planets[9];
   initializePlanets(planets, 9);
@@ -286,6 +313,32 @@ int main( int argc, char* args[] )
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, postProcessFramebuffer.framebuffer);
     glBlitFramebuffer(0, 0, win.width, win.height, 0, 0, win.width, win.height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
+    glBindFramebuffer(GL_FRAMEBUFFER, extractFramebuffer.framebuffer);
+    extractShader.use();
+    glBindTexture(GL_TEXTURE_2D, postProcessFramebuffer.texture);
+    glBindVertexArray(postProcessFramebuffer.VAO);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindVertexArray(0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    // Blur bright fragments with two pass Gaussian Blur
+    bool horizontal = true, first_iteration = true;
+    unsigned int amount = 5;
+    blurShader.use();
+    for (unsigned int i = 0; i < amount; i++)
+    {
+      glBindFramebuffer(GL_FRAMEBUFFER, pingPongFBO[horizontal]);
+      blurShader.setInt("horizontal", horizontal);
+      glBindTexture(GL_TEXTURE_2D, first_iteration ? extractFramebuffer.texture : pingPongColorBuffers[!horizontal]);
+      glBindVertexArray(postProcessFramebuffer.VAO);
+      glDrawArrays(GL_TRIANGLES, 0, 6);
+      horizontal = !horizontal;
+      if (first_iteration) first_iteration = false;
+      glBindVertexArray(0);
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
     // Calculate average luminance
     hdrShader.use();
 
@@ -307,7 +360,7 @@ int main( int argc, char* args[] )
       if (data[i] >= biggest) biggest = data[i];
     }
 
-    if (biggest >= 100.0) targetExposure = 0.1f;
+    if (biggest >= 100.0) targetExposure = 0.15f;
     else targetExposure = 2.2;
 
     glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
@@ -328,6 +381,8 @@ int main( int argc, char* args[] )
     glBindVertexArray(postProcessFramebuffer.VAO);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, postProcessFramebuffer.texture);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, pingPongColorBuffers[!horizontal]);
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
     SDL_GL_SwapWindow(win.sdlWindow); 
