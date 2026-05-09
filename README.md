@@ -68,7 +68,7 @@ Below is the checklist of things I want to implement:
 - [x] ~Shadows~
 - [x] ~HDR~
 - [x] ~Gamma handling~
-- [ ] SSAO
+- [x] ~SSAO~ _throwing ssao out the window as well because it will do almost nothing visually. we only have round shapes far away from each other so it kind of doesn't make any sense and it's mostly wasted effort_
 
 ### Physics
 _throwing these out the window, planets differ in size way too much and are way to far away for the project to actually look good_
