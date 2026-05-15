@@ -1,10 +1,7 @@
 # Solar System Simulation
 Starting this project to practice my OpenGL and C/C++ skills. 
 
-![GifExample](./resources/examples/shadows.gif)
-![Sun](./resources/examples/sun-eg.gif)
-![Exposure](./resources/examples/exposure.gif)
-![DayNigh](./resources/examples/day-night.gif)
+![GifExample](./resources/examples/demo-reel.gif)
 
 ## Dependencies
 - GLAD
@@ -83,5 +80,3 @@ _I actually implemeted them by using correct sizes, normalizing to Earth data, a
 ### Chef's Kiss
 - [ ] "Photo mode" style UI elements to control post-processing shaders
 - [ ] Audio player
-
-![SSSS](./resources/examples/ssss.png)
