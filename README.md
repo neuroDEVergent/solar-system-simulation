@@ -72,7 +72,7 @@ _throwing these out the window, planets differ in size way too much and are way 
 - ~[ ] Correct planet scaling (possibly smaller Sun to fit the screen)~
 - ~[ ] Correct distance between bodies~
 
-_I actually implemeted them by using correct sizes, normalizing to Earth data, and mapping to a logarithmic function prevent large values from being too big_
+_I actually implemeted them by using correct sizes, normalizing to Earth data, and mapping to a square root function prevent large values from being too big_
 
 - [x] ~Planets orbiting around the Sun~
 - [ ] Correct time conversion with ability to speed time up
